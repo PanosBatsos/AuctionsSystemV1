@@ -19,7 +19,6 @@ namespace AuctionsSystem.AccountService.Domain.Entities
         public AccountSecurity Security { get; private set; }
         public AccountVerification Verification { get; private set; }
         public bool IsActive { get; private set; }
-        public string Timezone { get; private set; }
         public DateTimeOffset TermsAcceptedAt { get; private set; }
         public DateTimeOffset CreatedAt { get; private set; }
         public DateTimeOffset? UpdatedAt { get; private set; }
@@ -28,7 +27,7 @@ namespace AuctionsSystem.AccountService.Domain.Entities
 
         protected Account() { }
 
-        public Account(string userName, string email, string passwordHash, string firstName, string lastName, string idNumber, string phoneNumber, UserRole role, string timezone, DateTimeOffset termsAcceptedAt)
+        public Account(string userName, string email, string passwordHash, string firstName, string lastName, string idNumber, string phoneNumber, UserRole role, DateTimeOffset termsAcceptedAt)
         {
             Id = Guid.NewGuid();
             UserName = userName;
@@ -37,7 +36,6 @@ namespace AuctionsSystem.AccountService.Domain.Entities
             LastName = lastName;
             IdNumber = idNumber;
             Role = role;
-            Timezone = timezone;
             PhoneNumber = phoneNumber;
             TermsAcceptedAt = termsAcceptedAt;
             IsActive = true;

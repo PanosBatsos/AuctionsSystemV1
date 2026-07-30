@@ -15,6 +15,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AuctionsSystem.AccountService.Application\AuctionsSystem.AccountService.Application.csproj" />
+    <ProjectReference Include="..\AuctionsSystem.AccountService.Domain\AuctionsSystem.AccountService.Domain.csproj" />
+    <ProjectReference Include="..\AuctionsSystem.AccountService.Infrastructure\AuctionsSystem.AccountService.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 
