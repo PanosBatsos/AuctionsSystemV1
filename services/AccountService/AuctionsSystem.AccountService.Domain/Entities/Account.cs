@@ -8,6 +8,7 @@ namespace AuctionsSystem.AccountService.Domain.Entities
     public class Account
     {
         public Guid Id { get; private set; }
+        public string UserName { get; private set; }
         public string Email { get; private set; }
         public string PasswordHash { get; private set; }
         public string FirstName { get; private set; }
@@ -20,10 +21,11 @@ namespace AuctionsSystem.AccountService.Domain.Entities
 
         protected Account() { }
 
-        public Account(string email, string passwordHash, string firstName, string lastName, string idNumber, UserRole role)
+        public Account(string userName, string email, string passwordHash, string firstName, string lastName, string idNumber, UserRole role)
         {
             Id = Guid.NewGuid();
             Email = email;
+            UserName = userName;
             PasswordHash = passwordHash;
             FirstName = firstName;
             LastName = lastName;
@@ -31,6 +33,19 @@ namespace AuctionsSystem.AccountService.Domain.Entities
             Role = role;
             IsActive = true;
             CreatedAt = DateTimeOffset.UtcNow;
+        }
+
+
+        public void ChangeUsername(string userName)
+        {
+            UserName = userName;
+            UpdatedAt = DateTimeOffset.UtcNow;
+        }
+
+        public void DeactivateAccount()
+        {
+            IsActive = false;
+            UpdatedAt = DateTimeOffset.UtcNow;
         }
     }
 }
