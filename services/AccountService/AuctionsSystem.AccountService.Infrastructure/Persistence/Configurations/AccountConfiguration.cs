@@ -17,6 +17,8 @@ namespace AuctionsSystem.AccountService.Infrastructure.Persistence.Configuration
 
             builder.HasIndex(e => e.Email).IsUnique();
             builder.HasIndex(e => e.UserName).IsUnique();
+            builder.HasIndex(e => e.PhoneNumber).IsUnique();
+            builder.HasIndex(e => e.IdNumber).IsUnique();
 
             builder.Property(e => e.Id)
                 .HasColumnName("id");
