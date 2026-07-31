@@ -9,7 +9,7 @@ namespace AuctionsSystem.AccountService.Domain.ValueObjects
         public bool EmailConfirmed { get; private set; }
         public bool PhoneNumberConfirmed{  get; private set; }
 
-        public AccountVerification()
+        private AccountVerification()
         {
             EmailConfirmed = false;
             PhoneNumberConfirmed = false;
@@ -33,6 +33,11 @@ namespace AuctionsSystem.AccountService.Domain.ValueObjects
         public void RevokeEmailConfirmation()
         {
             EmailConfirmed = false;
+        }
+
+        public static AccountVerification NoVerification()
+        {
+            return new AccountVerification();
         }
     }
 }

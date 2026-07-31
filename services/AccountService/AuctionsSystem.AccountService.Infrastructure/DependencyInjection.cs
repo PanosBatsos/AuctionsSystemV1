@@ -1,4 +1,6 @@
-﻿using AuctionsSystem.AccountService.Infrastructure.Persistence;
+﻿using AuctionsSystem.AccountService.Application.Abstractions.Persistence;
+using AuctionsSystem.AccountService.Infrastructure.Persistence;
+using AuctionsSystem.AccountService.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +16,8 @@ namespace AuctionsSystem.AccountService.Infrastructure
         {
             services.AddDbContext<AccountDbContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddScoped<IAccountRepository, AccountRepository>();
 
             return services;
         }

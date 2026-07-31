@@ -13,7 +13,7 @@ namespace AuctionsSystem.AccountService.Domain.ValueObjects
 
         protected AccountSecurity() { }
 
-        public AccountSecurity(string passwordHash)
+        private AccountSecurity(string passwordHash)
         {
             PasswordHash = passwordHash;
             TwoFactorEnabled = false;
@@ -33,6 +33,11 @@ namespace AuctionsSystem.AccountService.Domain.ValueObjects
             {
                 LockoutEnd = DateTimeOffset.UtcNow.Add(lockoutPeriod);
             }
+        }
+
+        public static AccountSecurity CreateIntialSecurity(string passwordHash)
+        {
+            return new AccountSecurity(passwordHash);
         }
     }
 }
