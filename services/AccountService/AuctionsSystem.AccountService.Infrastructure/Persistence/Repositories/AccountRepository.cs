@@ -22,7 +22,14 @@ namespace AuctionsSystem.AccountService.Infrastructure.Persistence.Repositories
             await _db.Set<Account>().AddAsync(account, cancellationToken);
         }
 
-        
+        public async Task<Account?> GetByUniqueFieldsAsync(string email, string phoneNumber, string idNumber, CancellationToken cancellationToken = default)
+        {
+            return await _db.Accounts
+                .Where(u => u.Email == email ||
+                        u.PhoneNumber == phoneNumber ||
+                        u.IdNumber == idNumber)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
 
         public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
         {
