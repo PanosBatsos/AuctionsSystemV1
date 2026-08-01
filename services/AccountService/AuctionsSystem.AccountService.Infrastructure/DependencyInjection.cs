@@ -1,6 +1,8 @@
 ﻿using AuctionsSystem.AccountService.Application.Abstractions.Persistence;
+using AuctionsSystem.AccountService.Application.Abstractions.Security;
 using AuctionsSystem.AccountService.Infrastructure.Persistence;
 using AuctionsSystem.AccountService.Infrastructure.Persistence.Repositories;
+using AuctionsSystem.AccountService.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +20,7 @@ namespace AuctionsSystem.AccountService.Infrastructure
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
             services.AddScoped<IAccountRepository, AccountRepository>();
+            services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
             return services;
         }

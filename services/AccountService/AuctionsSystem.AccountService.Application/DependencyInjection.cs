@@ -1,9 +1,6 @@
 ﻿using AuctionsSystem.AccountService.Application.Behaviors;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace AuctionsSystem.AccountService.Application
 {
@@ -21,6 +18,7 @@ namespace AuctionsSystem.AccountService.Application
                 cfg.RegisterServicesFromAssembly(assembly);
                 cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
             });
+
 
             return services;
         }

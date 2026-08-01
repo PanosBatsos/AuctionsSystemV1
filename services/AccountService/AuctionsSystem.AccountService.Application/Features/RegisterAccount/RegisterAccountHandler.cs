@@ -1,4 +1,5 @@
 ﻿using AuctionsSystem.AccountService.Application.Abstractions.Persistence;
+using AuctionsSystem.AccountService.Application.Abstractions.Security;
 using AuctionsSystem.AccountService.Application.Exceptions;
 using AuctionsSystem.AccountService.Domain.Entities;
 using AuctionsSystem.AccountService.Domain.ValueObjects;
@@ -9,13 +10,15 @@ using System.Text;
 
 namespace AuctionsSystem.AccountService.Application.Features.RegisterAccount
 {
-    public class RegisterAccountHandler : IRequestHandler<RegisterAccountCommand, Guid>
+    public class RegisterAccountCommandHandler : IRequestHandler<RegisterAccountCommand, Guid>
     {
         private readonly IAccountRepository _accountRepository;
+        private readonly IPasswordHasher _passwordHasher;
 
-        public RegisterAccountHandler(IAccountRepository accountRepository)
+        public RegisterAccountCommandHandler(IAccountRepository accountRepository, IPasswordHasher passwordHasher)
         {
             _accountRepository = accountRepository;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<Guid> Handle(RegisterAccountCommand request, CancellationToken cancellationToken)
@@ -27,9 +30,12 @@ namespace AuctionsSystem.AccountService.Application.Features.RegisterAccount
 
             ResolveConflicts(existingAccount, request);
 
+            string hashedPassword = _passwordHasher.Hash(request.Password);
+
+
             Account account = Account.CreateInitialAccount(request.Username,
                 request.Email,
-                request.Password,
+                hashedPassword,
                 request.FirstName,
                 request.LastName,
                 request.PhoneNumber,
