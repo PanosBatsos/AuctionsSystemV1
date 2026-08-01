@@ -1,3 +1,4 @@
+using AuctionsSystem.AccountService.Api.ExceptionHandling;
 using AuctionsSystem.AccountService.Application;
 using AuctionsSystem.AccountService.Infrastructure;
 
@@ -12,7 +13,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
+builder.Services.AddProblemDetails();
+
+
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 
 // Configure the HTTP request pipeline.

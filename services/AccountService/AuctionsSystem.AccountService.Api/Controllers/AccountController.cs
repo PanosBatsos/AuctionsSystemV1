@@ -22,11 +22,11 @@ namespace AuctionsSystem.AccountService.Api.Controllers
             var command = new RegisterAccountCommand(
                 request.Username,
                 request.Email,
-                request.Password,
                 request.FirstName,
                 request.LastName,
-                request.PhoneNumber,
-                request.IdNumber
+                request.Password,
+                request.IdNumber,
+                request.PhoneNumber
             );
 
             var accountId = await _mediator.Send(command, cancellationToken);

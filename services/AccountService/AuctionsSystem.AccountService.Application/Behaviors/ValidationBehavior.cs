@@ -7,7 +7,7 @@ using System.Text;
 namespace AuctionsSystem.AccountService.Application.Behaviors
 {
     public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-        where TRequest : IRequest<TRequest>
+        where TRequest : IRequest<TResponse>
     {
 
         private readonly IEnumerable<IValidator<TRequest>> _validators;
