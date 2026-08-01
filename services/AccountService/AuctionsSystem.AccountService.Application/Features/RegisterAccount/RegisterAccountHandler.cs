@@ -47,13 +47,13 @@ namespace AuctionsSystem.AccountService.Application.Features.RegisterAccount
             if (account == null) return;
 
             if(account.Email == request.Email)
-                throw new ConflictException("Email", "Email already exists");
+                throw new PropertyAlreadyInUseException("Email", "Email already exists");
 
             if (account.PhoneNumber == request.PhoneNumber)
-                throw new ConflictException("PhoneNumber", "Phone number already exists");
+                throw new PropertyAlreadyInUseException("PhoneNumber", "Phone number already exists");
 
             if (account.IdNumber == request.IdNumber)
-                throw new ConflictException("IdNumber", $"Id number already exists");
+                throw new PropertyAlreadyInUseException("IdNumber", "Id number already exists");
         }
     }
 }

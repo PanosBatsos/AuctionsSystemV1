@@ -4,10 +4,10 @@ using System.Text;
 
 namespace AuctionsSystem.AccountService.Application.Exceptions
 {
-    public class ConflictException : Exception
+    public class PropertyAlreadyInUseException : Exception
     {
         public string FieldName { get; }
-        public ConflictException(string fieldName, string message) : base(message) 
+        public PropertyAlreadyInUseException(string fieldName, string message) : base(message) 
         {
             FieldName = fieldName;
         }

@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AuctionsSystem.AccountService.Api.ExceptionHandling
 {
-    public class ConflictExceptionHandler : IExceptionHandler
+    public class PropertyAlreadyInUseExceptionHandler : IExceptionHandler
     {
         public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
         {
-            if (exception is not ConflictException conflictException)
+            if (exception is not PropertyAlreadyInUseException conflictException)
             {
                 return false;
             }
