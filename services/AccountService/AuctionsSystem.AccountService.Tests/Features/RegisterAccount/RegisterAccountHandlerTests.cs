@@ -11,7 +11,7 @@ using System.Text;
 
 namespace AuctionsSystem.AccountService.Tests.Features.RegisterAccount
 {
-    public class RegisterAccountHandlerTests
+    public class RegisterAccountCommandHandlerTests
     {
         private readonly Mock<IPasswordHasher> _hasherMock = new();
         private readonly Mock<IAccountRepository> _repositoryMock = new();
