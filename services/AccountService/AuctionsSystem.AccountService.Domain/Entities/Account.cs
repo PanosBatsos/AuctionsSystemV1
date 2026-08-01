@@ -27,21 +27,29 @@ namespace AuctionsSystem.AccountService.Domain.Entities
 
         protected Account() { }
 
-        public Account(string userName, string email, string passwordHash, string firstName, string lastName, string idNumber, string phoneNumber, UserRole role, DateTimeOffset termsAcceptedAt)
+        
+
+        public Account(string username, string email, string password, string firstname, string lastname, string phoneNumber, string idNumber)
         {
             Id = Guid.NewGuid();
-            UserName = userName;
+            UserName = username;
             Email = email;
-            FirstName = firstName;
-            LastName = lastName;
-            IdNumber = idNumber;
-            Role = role;
+            FirstName = firstname;
+            LastName = lastname;
             PhoneNumber = phoneNumber;
-            TermsAcceptedAt = termsAcceptedAt;
+            IdNumber = idNumber;
+            Role = UserRole.USER;
             IsActive = true;
+            TermsAcceptedAt = DateTimeOffset.UtcNow;
             CreatedAt = DateTimeOffset.UtcNow;
-            Security = new AccountSecurity(passwordHash);
-            Verification = new AccountVerification();
+            Security = AccountSecurity.CreateIntialSecurity(password);
+            Verification = AccountVerification.NoVerification();
+        }
+
+
+        public static Account CreateInitialAccount(string username, string email, string password, string firstname, string lastname, string phoneNumber, string idNumber)
+        {
+            return new Account(username, email, password, firstname, lastname, phoneNumber, idNumber);
         }
 
         public void ChangeUsername(string userName)
