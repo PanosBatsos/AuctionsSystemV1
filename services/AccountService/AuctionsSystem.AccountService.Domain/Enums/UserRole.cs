@@ -7,6 +7,6 @@ namespace AuctionsSystem.AccountService.Domain.Enums
     public enum UserRole
     {
         USER = 0,
-        ADMIN = 1,
+        ADMIN = 1
     }
 }
