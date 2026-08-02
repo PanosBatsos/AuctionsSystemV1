@@ -17,6 +17,9 @@ namespace AuctionsSystem.AccountService.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+
+            services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+
             services.AddDbContext<AccountDbContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
