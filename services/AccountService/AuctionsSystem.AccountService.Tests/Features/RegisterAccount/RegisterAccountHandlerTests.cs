@@ -3,6 +3,7 @@ using AuctionsSystem.AccountService.Application.Abstractions.Security;
 using AuctionsSystem.AccountService.Application.Exceptions;
 using AuctionsSystem.AccountService.Application.Features.RegisterAccount;
 using AuctionsSystem.AccountService.Domain.Entities;
+using AuctionsSystem.AccountService.Domain.Enums;
 using FluentAssertions;
 using Moq;
 using System;
@@ -15,10 +16,12 @@ namespace AuctionsSystem.AccountService.Tests.Features.RegisterAccount
     {
         private readonly Mock<IPasswordHasher> _hasherMock = new();
         private readonly Mock<IAccountRepository> _repositoryMock = new();
+        private readonly Mock<ITokenProvider> _tokenProviderMock = new();
 
         private RegisterAccountCommandHandler CreateSut() => new(
             _repositoryMock.Object,
-            _hasherMock.Object
+            _hasherMock.Object,
+            _tokenProviderMock.Object
             );
 
         [Fact]
@@ -27,7 +30,9 @@ namespace AuctionsSystem.AccountService.Tests.Features.RegisterAccount
             // Arrange
             var command = new RegisterAccountCommand(
                 "npappas", "npappas@example.com", "Nikos", "Pappas", "Password123!", "AN123456", "6987654321");
-            
+
+            var expectedToken = "mocked_jwt_token_string";
+
             _repositoryMock
                 .Setup(repo => repo.GetByUniqueFieldsAsync(command.Email, command.PhoneNumber, command.IdNumber))
                 .ReturnsAsync((Account?)null);
@@ -36,20 +41,25 @@ namespace AuctionsSystem.AccountService.Tests.Features.RegisterAccount
                 .Setup(hasher => hasher.Hash(command.Password))
                 .Returns("hashed_password_123");
 
+            _tokenProviderMock
+                .Setup(tp => tp.GenerateToken(It.IsAny<Guid>(), command.Username, It.IsAny<UserRole>()))
+                .Returns(expectedToken); 
+
             var sut = CreateSut();
 
             // Act
             var result = await sut.Handle(command, CancellationToken.None);
 
             // Assert
-            result.Should().NotBeEmpty(); 
-            Assert.NotEqual(Guid.Empty, result);
+            result.Should().NotBeNull();
+            result.Token.Should().Be(expectedToken);
+            result.Username.Should().Be(command.Username);
+            result.Email.Should().Be(command.Email);
 
             _hasherMock.Verify(h => h.Hash(command.Password), Times.Once);
-
             _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Account>()), Times.Once);
-
             _repositoryMock.Verify(repo => repo.SaveChangesAsync(), Times.Once);
+            _tokenProviderMock.Verify(tp => tp.GenerateToken(It.IsAny<Guid>(), command.Username, It.IsAny<UserRole>()), Times.Once);
         }
 
         [Fact]
@@ -79,6 +89,7 @@ namespace AuctionsSystem.AccountService.Tests.Features.RegisterAccount
 
             _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Account>()), Times.Never);
             _repositoryMock.Verify(repo => repo.SaveChangesAsync(), Times.Never);
+            _tokenProviderMock.Verify(tp => tp.GenerateToken(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<UserRole>()), Times.Never);
         }
 
         [Fact]
@@ -106,6 +117,7 @@ namespace AuctionsSystem.AccountService.Tests.Features.RegisterAccount
                 .Where(e => e.FieldName == nameof(command.PhoneNumber));
 
             _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Account>()), Times.Never);
+            _tokenProviderMock.Verify(tp => tp.GenerateToken(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<UserRole>()), Times.Never);
         }
 
         [Fact]
@@ -133,6 +145,7 @@ namespace AuctionsSystem.AccountService.Tests.Features.RegisterAccount
                 .Where(e => e.FieldName == nameof(command.IdNumber));
 
             _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Account>()), Times.Never);
+            _tokenProviderMock.Verify(tp => tp.GenerateToken(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<UserRole>()), Times.Never);
         }
 
         [Fact]
@@ -154,6 +167,10 @@ namespace AuctionsSystem.AccountService.Tests.Features.RegisterAccount
             _hasherMock
                 .Setup(hasher => hasher.Hash(plainPassword))
                 .Returns(expectedHashedPassword);
+
+            _tokenProviderMock
+                .Setup(tp => tp.GenerateToken(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<UserRole>()))
+                .Returns("dummy_token");
 
             var sut = CreateSut();
 
