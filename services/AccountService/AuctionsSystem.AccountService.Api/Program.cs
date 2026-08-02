@@ -1,6 +1,11 @@
 using AuctionsSystem.AccountService.Api.ExceptionHandling;
 using AuctionsSystem.AccountService.Application;
 using AuctionsSystem.AccountService.Infrastructure;
+using AuctionsSystem.AccountService.Infrastructure.Configuration;
+using DotNetEnv;
+
+var envPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", ".env"));
+Env.Load(envPath);
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +17,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<PropertyAlreadyInUseExceptionHandler>();
