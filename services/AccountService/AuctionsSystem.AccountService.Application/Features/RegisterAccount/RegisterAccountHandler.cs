@@ -1,5 +1,6 @@
 ﻿using AuctionsSystem.AccountService.Application.Abstractions.Persistence;
 using AuctionsSystem.AccountService.Application.Abstractions.Security;
+using AuctionsSystem.AccountService.Application.DTOs;
 using AuctionsSystem.AccountService.Application.Exceptions;
 using AuctionsSystem.AccountService.Domain.Entities;
 using AuctionsSystem.AccountService.Domain.ValueObjects;
@@ -10,18 +11,20 @@ using System.Text;
 
 namespace AuctionsSystem.AccountService.Application.Features.RegisterAccount
 {
-    public class RegisterAccountCommandHandler : IRequestHandler<RegisterAccountCommand, Guid>
+    public class RegisterAccountCommandHandler : IRequestHandler<RegisterAccountCommand, AuthenticationResponseDto>
     {
         private readonly IAccountRepository _accountRepository;
         private readonly IPasswordHasher _passwordHasher;
+        private readonly ITokenProvider _tokenProvider;
 
-        public RegisterAccountCommandHandler(IAccountRepository accountRepository, IPasswordHasher passwordHasher)
+        public RegisterAccountCommandHandler(IAccountRepository accountRepository, IPasswordHasher passwordHasher, ITokenProvider tokenProvider)
         {
             _accountRepository = accountRepository;
             _passwordHasher = passwordHasher;
+            _tokenProvider = tokenProvider;
         }
 
-        public async Task<Guid> Handle(RegisterAccountCommand request, CancellationToken cancellationToken)
+        public async Task<AuthenticationResponseDto> Handle(RegisterAccountCommand request, CancellationToken cancellationToken)
         {
             var existingAccount = await _accountRepository.GetByUniqueFieldsAsync(request.Email,
                 request.PhoneNumber,
@@ -42,15 +45,23 @@ namespace AuctionsSystem.AccountService.Application.Features.RegisterAccount
                 request.IdNumber);
 
             await _accountRepository.AddAsync(account);
+           
+            var token = _tokenProvider.GenerateToken(account.Id, account.UserName, account.Role);
+
             await _accountRepository.SaveChangesAsync();
 
-            return account.Id;
+            return new AuthenticationResponseDto(account.UserName, account.Email, token);
         }
 
 
         private void ResolveConflicts(Account? account, RegisterAccountCommand request)
         {
             if (account == null) return;
+
+            if (account.UserName == request.Username)
+            {
+                throw new PropertyAlreadyInUseException("Usename", "Username already exists");
+            }
 
             if(account.Email == request.Email)
                 throw new PropertyAlreadyInUseException("Email", "Email already exists");
@@ -60,6 +71,7 @@ namespace AuctionsSystem.AccountService.Application.Features.RegisterAccount
 
             if (account.IdNumber == request.IdNumber)
                 throw new PropertyAlreadyInUseException("IdNumber", "Id number already exists");
+            
         }
     }
 }

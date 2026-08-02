@@ -1,5 +1,6 @@
 ﻿using AuctionsSystem.AccountService.Application.Abstractions.Persistence;
 using AuctionsSystem.AccountService.Application.Abstractions.Security;
+using AuctionsSystem.AccountService.Infrastructure.Configuration;
 using AuctionsSystem.AccountService.Infrastructure.Persistence;
 using AuctionsSystem.AccountService.Infrastructure.Persistence.Repositories;
 using AuctionsSystem.AccountService.Infrastructure.Security;
@@ -22,6 +23,7 @@ namespace AuctionsSystem.AccountService.Infrastructure
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
+            services.AddScoped<ITokenProvider, TokenProvider>();
             return services;
         }
     }

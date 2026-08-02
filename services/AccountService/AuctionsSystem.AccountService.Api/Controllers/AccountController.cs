@@ -29,8 +29,11 @@ namespace AuctionsSystem.AccountService.Api.Controllers
                 request.PhoneNumber
             );
 
-            var accountId = await _mediator.Send(command, cancellationToken);
-            return Ok(new RegisterAccountResponseDto(accountId, "Account created succesfully"));
+            var handlerResponse = await _mediator.Send(command, cancellationToken);
+            return Ok(new RegisterAccountResponseDto(handlerResponse.Username,
+                handlerResponse.Email,
+                handlerResponse.Token,
+                "Account created successfully"));
         }
     }
 }
