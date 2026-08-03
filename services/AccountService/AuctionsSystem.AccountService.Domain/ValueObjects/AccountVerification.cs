@@ -35,6 +35,11 @@ namespace AuctionsSystem.AccountService.Domain.ValueObjects
             EmailConfirmed = false;
         }
 
+        public bool IsVerified()
+        {
+            return EmailConfirmed && PhoneNumberConfirmed;
+        }
+
         public static AccountVerification NoVerification()
         {
             return new AccountVerification();

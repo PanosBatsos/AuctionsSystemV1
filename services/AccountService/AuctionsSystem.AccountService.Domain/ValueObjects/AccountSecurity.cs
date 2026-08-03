@@ -35,6 +35,18 @@ namespace AuctionsSystem.AccountService.Domain.ValueObjects
             }
         }
 
+        public void RecordUnsuccesfulLoginTry()
+        {
+            AccessFailedCount++;
+        }
+
+
+        public bool IsLockedOut()
+        {
+            return false;
+        }
+
+
         public static AccountSecurity CreateIntialSecurity(string passwordHash)
         {
             return new AccountSecurity(passwordHash);

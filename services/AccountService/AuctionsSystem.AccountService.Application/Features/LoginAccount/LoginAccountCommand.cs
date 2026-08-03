@@ -8,6 +8,7 @@ namespace AuctionsSystem.AccountService.Application.Features.LoginAccount
 {
     public record LoginAccountCommand(
         string Email,
-        string Password
+        string Password,
+        string IpAddress
         ) : IRequest<AuthenticationResponseDto>;
 }
