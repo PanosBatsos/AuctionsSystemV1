@@ -11,20 +11,18 @@ using System.Text;
 
 namespace AuctionsSystem.AccountService.Application.Features.RegisterAccount
 {
-    public class RegisterAccountCommandHandler : IRequestHandler<RegisterAccountCommand, AuthenticationResponseDto>
+    public class RegisterAccountCommandHandler : IRequestHandler<RegisterAccountCommand, RegisterAccountCommandResponseDto>
     {
         private readonly IAccountRepository _accountRepository;
         private readonly IPasswordHasher _passwordHasher;
-        private readonly ITokenProvider _tokenProvider;
 
-        public RegisterAccountCommandHandler(IAccountRepository accountRepository, IPasswordHasher passwordHasher, ITokenProvider tokenProvider)
+        public RegisterAccountCommandHandler(IAccountRepository accountRepository, IPasswordHasher passwordHasher)
         {
             _accountRepository = accountRepository;
             _passwordHasher = passwordHasher;
-            _tokenProvider = tokenProvider;
         }
 
-        public async Task<AuthenticationResponseDto> Handle(RegisterAccountCommand request, CancellationToken cancellationToken)
+        public async Task<RegisterAccountCommandResponseDto> Handle(RegisterAccountCommand request, CancellationToken cancellationToken)
         {
             var existingAccount = await _accountRepository.GetByUniqueFieldsAsync(request.Email,
                 request.PhoneNumber,
@@ -45,12 +43,9 @@ namespace AuctionsSystem.AccountService.Application.Features.RegisterAccount
                 request.IdNumber);
 
             await _accountRepository.AddAsync(account);
-           
-            var token = _tokenProvider.GenerateToken(account.Id, account.UserName, account.Role);
-
             await _accountRepository.SaveChangesAsync();
 
-            return new AuthenticationResponseDto(account.UserName, account.Email, token);
+            return new RegisterAccountCommandResponseDto(account.Id, account.Email, account.PhoneNumber);
         }
 
 

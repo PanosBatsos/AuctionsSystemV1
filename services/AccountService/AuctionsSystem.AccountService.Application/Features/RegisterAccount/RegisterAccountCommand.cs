@@ -14,5 +14,5 @@ namespace AuctionsSystem.AccountService.Application.Features.RegisterAccount
         string Password,
         string IdNumber,
         string PhoneNumber
-        ) : IRequest<AuthenticationResponseDto>;
+        ) : IRequest<RegisterAccountCommandResponseDto>;
 }

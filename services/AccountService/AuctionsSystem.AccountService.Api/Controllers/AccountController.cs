@@ -33,9 +33,9 @@ namespace AuctionsSystem.AccountService.Api.Controllers
             );
 
             var handlerResponse = await _mediator.Send(command, cancellationToken);
-            return Ok(new RegisterAccountResponseDto(handlerResponse.Username,
+            return Ok(new RegisterAccountResponseDto(handlerResponse.Id,
                 handlerResponse.Email,
-                handlerResponse.Token,
+                handlerResponse.PhoneNumber,
                 "Account created successfully"));
         }
 

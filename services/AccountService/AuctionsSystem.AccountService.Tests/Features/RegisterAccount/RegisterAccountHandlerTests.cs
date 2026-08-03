@@ -1,5 +1,6 @@
 ﻿using AuctionsSystem.AccountService.Application.Abstractions.Persistence;
 using AuctionsSystem.AccountService.Application.Abstractions.Security;
+using AuctionsSystem.AccountService.Application.DTOs;
 using AuctionsSystem.AccountService.Application.Exceptions;
 using AuctionsSystem.AccountService.Application.Features.RegisterAccount;
 using AuctionsSystem.AccountService.Domain.Entities;
@@ -16,22 +17,18 @@ namespace AuctionsSystem.AccountService.Tests.Features.RegisterAccount
     {
         private readonly Mock<IPasswordHasher> _hasherMock = new();
         private readonly Mock<IAccountRepository> _repositoryMock = new();
-        private readonly Mock<ITokenProvider> _tokenProviderMock = new();
 
         private RegisterAccountCommandHandler CreateSut() => new(
             _repositoryMock.Object,
-            _hasherMock.Object,
-            _tokenProviderMock.Object
-            );
+            _hasherMock.Object
+        );
 
         [Fact]
-        public async Task Handle_ShouldReturnAccountId_WhenRequestIsValid()
+        public async Task Handle_ShouldReturnResponseDto_WhenRequestIsValid()
         {
             // Arrange
             var command = new RegisterAccountCommand(
                 "npappas", "npappas@example.com", "Nikos", "Pappas", "Password123!", "AN123456", "6987654321");
-
-            var expectedToken = "mocked_jwt_token_string";
 
             _repositoryMock
                 .Setup(repo => repo.GetByUniqueFieldsAsync(command.Email, command.PhoneNumber, command.IdNumber))
@@ -41,10 +38,6 @@ namespace AuctionsSystem.AccountService.Tests.Features.RegisterAccount
                 .Setup(hasher => hasher.Hash(command.Password))
                 .Returns("hashed_password_123");
 
-            _tokenProviderMock
-                .Setup(tp => tp.GenerateToken(It.IsAny<Guid>(), command.Username, It.IsAny<UserRole>()))
-                .Returns(expectedToken); 
-
             var sut = CreateSut();
 
             // Act
@@ -52,14 +45,14 @@ namespace AuctionsSystem.AccountService.Tests.Features.RegisterAccount
 
             // Assert
             result.Should().NotBeNull();
-            result.Token.Should().Be(expectedToken);
-            result.Username.Should().Be(command.Username);
+            result.Should().BeOfType<RegisterAccountCommandResponseDto>();
+            result.Id.Should().NotBeEmpty();
             result.Email.Should().Be(command.Email);
+            result.PhoneNumber.Should().Be(command.PhoneNumber);
 
             _hasherMock.Verify(h => h.Hash(command.Password), Times.Once);
             _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Account>()), Times.Once);
-            _repositoryMock.Verify(repo => repo.SaveChangesAsync(), Times.Once);
-            _tokenProviderMock.Verify(tp => tp.GenerateToken(It.IsAny<Guid>(), command.Username, It.IsAny<UserRole>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -68,7 +61,6 @@ namespace AuctionsSystem.AccountService.Tests.Features.RegisterAccount
             // Arrange
             var command = new RegisterAccountCommand(
                 "npappas", "conflict@example.com", "Nikos", "Pappas", "Password123!", "AN123456", "6987654321");
-
 
             var existingAccount = Account.CreateInitialAccount(
                 "otherUser", "conflict@example.com", "hash", "John", "Doe", "6900000000", "ZZ000000");
@@ -85,11 +77,10 @@ namespace AuctionsSystem.AccountService.Tests.Features.RegisterAccount
             // Assert
             await act.Should()
                 .ThrowAsync<PropertyAlreadyInUseException>()
-                .Where(e => e.FieldName == nameof(command.Email)); 
+                .Where(e => e.FieldName == nameof(command.Email));
 
             _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Account>()), Times.Never);
-            _repositoryMock.Verify(repo => repo.SaveChangesAsync(), Times.Never);
-            _tokenProviderMock.Verify(tp => tp.GenerateToken(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<UserRole>()), Times.Never);
+            _repositoryMock.Verify(repo => repo.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
@@ -117,7 +108,6 @@ namespace AuctionsSystem.AccountService.Tests.Features.RegisterAccount
                 .Where(e => e.FieldName == nameof(command.PhoneNumber));
 
             _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Account>()), Times.Never);
-            _tokenProviderMock.Verify(tp => tp.GenerateToken(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<UserRole>()), Times.Never);
         }
 
         [Fact]
@@ -145,7 +135,6 @@ namespace AuctionsSystem.AccountService.Tests.Features.RegisterAccount
                 .Where(e => e.FieldName == nameof(command.IdNumber));
 
             _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Account>()), Times.Never);
-            _tokenProviderMock.Verify(tp => tp.GenerateToken(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<UserRole>()), Times.Never);
         }
 
         [Fact]
@@ -158,19 +147,13 @@ namespace AuctionsSystem.AccountService.Tests.Features.RegisterAccount
             var command = new RegisterAccountCommand(
                 "npappas", "npappas@example.com", "Nikos", "Pappas", plainPassword, "AN123456", "6987654321");
 
-
             _repositoryMock
                 .Setup(repo => repo.GetByUniqueFieldsAsync(command.Email, command.PhoneNumber, command.IdNumber))
                 .ReturnsAsync((Account?)null);
 
-
             _hasherMock
                 .Setup(hasher => hasher.Hash(plainPassword))
                 .Returns(expectedHashedPassword);
-
-            _tokenProviderMock
-                .Setup(tp => tp.GenerateToken(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<UserRole>()))
-                .Returns("dummy_token");
 
             var sut = CreateSut();
 
@@ -180,7 +163,6 @@ namespace AuctionsSystem.AccountService.Tests.Features.RegisterAccount
             // Assert 
             _hasherMock.Verify(hasher => hasher.Hash(plainPassword), Times.Once);
 
-      
             _repositoryMock.Verify(repo => repo.AddAsync(It.Is<Account>(account =>
                 account.Security.PasswordHash == expectedHashedPassword)), Times.Once);
         }
