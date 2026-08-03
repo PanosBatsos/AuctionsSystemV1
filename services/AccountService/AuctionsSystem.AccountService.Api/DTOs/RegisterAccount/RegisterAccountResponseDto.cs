@@ -1,9 +1,9 @@
 ﻿namespace AuctionsSystem.AccountService.Api.DTOs.RegisterAccount
 {
     public record RegisterAccountResponseDto(
-        string Username,
+        Guid Id,
         string Email,
-        string Token,
+        string PhoneNumber,
         string Message
     );
 }
