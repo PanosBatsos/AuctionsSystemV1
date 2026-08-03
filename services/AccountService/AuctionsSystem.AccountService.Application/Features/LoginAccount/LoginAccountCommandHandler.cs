@@ -65,8 +65,8 @@ namespace AuctionsSystem.AccountService.Application.Features.LoginAccount
             if (!account.IsActive)
                 throw new InactiveAccountException();
 
-            if (!account.Verification.IsVerified())
-                throw new NotVerifiedAccountException();
+           // if (!account.Verification.IsVerified())
+                // throw new NotVerifiedAccountException();
         }
     }
 }

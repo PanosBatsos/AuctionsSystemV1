@@ -1,6 +1,9 @@
-﻿using AuctionsSystem.AccountService.Api.DTOs.RegisterAccount;
+﻿using AuctionsSystem.AccountService.Api.DTOs.LoginAccount;
+using AuctionsSystem.AccountService.Api.DTOs.RegisterAccount;
+using AuctionsSystem.AccountService.Application.Features.LoginAccount;
 using AuctionsSystem.AccountService.Application.Features.RegisterAccount;
 using MediatR;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuctionsSystem.AccountService.Api.Controllers
@@ -34,6 +37,19 @@ namespace AuctionsSystem.AccountService.Api.Controllers
                 handlerResponse.Email,
                 handlerResponse.Token,
                 "Account created successfully"));
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult> Login([FromBody] LoginAccountRequestDto request, CancellationToken cancellationToken) 
+        {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            var command = new LoginAccountCommand(request.Email, request.Password, ipAddress);
+
+            var handlerResponse = await _mediator.Send(command, cancellationToken);
+            return Ok(new LoginAccountResponseDto(handlerResponse.Username,
+                handlerResponse.Email,
+                handlerResponse.Token,
+                "User logged in successfully"));
         }
     }
 }
