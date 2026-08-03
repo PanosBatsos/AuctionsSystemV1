@@ -1,7 +1,5 @@
 ﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 
 namespace AuctionsSystem.AccountService.Application.Features.LoginAccount
 {
@@ -15,6 +13,10 @@ namespace AuctionsSystem.AccountService.Application.Features.LoginAccount
 
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Password is required.");
+
+            RuleFor(x => x.IpAddress)
+                .NotEmpty().WithMessage("IP Address is required.")
+                .NotEqual("unknown").WithMessage("Could not determine the client IP address.");
         }
     }
 }
