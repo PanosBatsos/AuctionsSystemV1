@@ -21,6 +21,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<PropertyAlreadyInUseExceptionHandler>();
+builder.Services.AddExceptionHandler<AuthenticationExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddProblemDetails();

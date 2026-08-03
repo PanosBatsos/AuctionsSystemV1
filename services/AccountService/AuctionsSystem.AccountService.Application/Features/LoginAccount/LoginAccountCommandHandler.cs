@@ -1,6 +1,8 @@
-﻿using AuctionsSystem.AccountService.Application.Abstractions.Persistence;
+﻿using AuctionsSystem.AccountService.Api.ExceptionHandling;
+using AuctionsSystem.AccountService.Application.Abstractions.Persistence;
 using AuctionsSystem.AccountService.Application.Abstractions.Security;
 using AuctionsSystem.AccountService.Application.DTOs;
+using AuctionsSystem.AccountService.Application.Exceptions;
 using AuctionsSystem.AccountService.Domain.Entities;
 using MediatR;
 using System;
@@ -26,40 +28,45 @@ namespace AuctionsSystem.AccountService.Application.Features.LoginAccount
         {
             Account? account = await _accountRepository.GetByEmailAsync(request.Email, cancellationToken);
 
-            CheckAccountDetails(request, account);
+            await CheckLoginRequestCredentialsAsync(account, request, cancellationToken);
 
-            account.RecordLoginSuccess("Ip");
+            CheckAccountStatus(account);
             
+            account.RecordLoginSuccess(request.IpAddress);
+       
+            var token = _tokenProvider.GenerateToken(account.Id, account.UserName, account.Role);
+ 
+            await _accountRepository.SaveChangesAsync();
+
+            return new AuthenticationResponseDto(account.UserName, account.Email, token);
         }
 
-        private void CheckAccountDetails(LoginAccountCommand request, Account? account)
+
+        private async Task CheckLoginRequestCredentialsAsync(Account? account, LoginAccountCommand request, CancellationToken cancellationToken)
         {
             if (account == null)
-                throw new Exception(); // AccountDoesNotExistsException
+            {
+                throw new InvalidCredentialsException();     
+            }
 
             if (!_passwordHasher.Verify(request.Password, account.Security.PasswordHash))
             {
                 account.RecordUnsuccesfulLoginTry(request.IpAddress);
-                throw new Exception(); // PasswordMismatchException
+                await _accountRepository.SaveChangesAsync(cancellationToken);
+                throw new InvalidCredentialsException();  
             }
+        }
+
+        private void CheckAccountStatus(Account account)
+        {
+            if (account.Security.IsLockedOut())
+                throw new LockedOutAccountException();
 
             if (!account.IsActive)
-            {
-                account.RecordUnsuccesfulLoginTry(request.IpAddress);
-                throw new Exception(); // InactiveAccountException
-            }
+                throw new InactiveAccountException();
 
             if (!account.Verification.IsVerified())
-            {
-                account.RecordUnsuccesfulLoginTry(request.IpAddress);
-                throw new Exception(); // NotVerifiedAccountException
-            }
-
-            if (!account.Security.IsLockedOut())
-            {
-                account.RecordUnsuccesfulLoginTry(request.IpAddress);
-                throw new Exception(); // AccountLockedOutException
-            }
+                throw new NotVerifiedAccountException();
         }
     }
 }

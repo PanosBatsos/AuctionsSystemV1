@@ -43,7 +43,7 @@ namespace AuctionsSystem.AccountService.Domain.ValueObjects
 
         public bool IsLockedOut()
         {
-            return false;
+            return LockoutEnd.HasValue && LockoutEnd.Value > DateTimeOffset.UtcNow;
         }
 
 
