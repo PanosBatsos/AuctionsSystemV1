@@ -7,6 +7,6 @@ namespace AuctionsSystem.AccountService.Application.Abstractions.Security
     public interface IPasswordHasher
     {
         string Hash(string password);
-        bool verify(string password, string passwordHash);
+        bool Verify(string password, string passwordHash);
     }
 }

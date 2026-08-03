@@ -110,5 +110,11 @@ namespace AuctionsSystem.AccountService.Domain.Entities
 
             UpdatedAt = DateTimeOffset.UtcNow;
         }
+
+        public void RecordUnsuccesfulLoginTry(string ipAddress)
+        {
+            LastLoginIp = ipAddress;
+            Security.RecordUnsuccesfulLoginTry();
+        }
     }
 }
