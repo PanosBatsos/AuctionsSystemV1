@@ -7,9 +7,9 @@ using AuctionsSystem.AccountService.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
 
 namespace AuctionsSystem.AccountService.Infrastructure
 {
@@ -27,6 +27,33 @@ namespace AuctionsSystem.AccountService.Infrastructure
             services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
             services.AddScoped<ITokenProvider, TokenProvider>();
+
+
+            var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                var rsa = RSA.Create();
+                rsa.ImportFromPem(jwtSettings.PublicKey.Replace("\\n", "\n"));
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new RsaSecurityKey(rsa)
+                };
+            });
+
+            services.AddAuthorization();
             return services;
         }
     }
