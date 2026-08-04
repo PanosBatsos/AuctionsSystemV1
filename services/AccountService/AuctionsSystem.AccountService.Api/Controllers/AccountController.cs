@@ -1,6 +1,6 @@
 ﻿using AuctionsSystem.AccountService.Api.DTOs.LoginAccount;
 using AuctionsSystem.AccountService.Api.DTOs.RegisterAccount;
-using AuctionsSystem.AccountService.Application.Features.GetProfile;
+using AuctionsSystem.AccountService.Application.Features.GetAccount;
 using AuctionsSystem.AccountService.Application.Features.LoginAccount;
 using AuctionsSystem.AccountService.Application.Features.RegisterAccount;
 using MediatR;

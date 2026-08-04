@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AuctionsSystem.AccountService.Application.Features.GetProfile
+namespace AuctionsSystem.AccountService.Application.Features.GetAccount
 {
     public class GetAccountQueryHandler : IRequestHandler<GetAccountQuery, GetAccountQueryResponseDto>
     {
