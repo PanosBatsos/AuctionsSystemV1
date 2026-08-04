@@ -36,7 +36,7 @@ namespace AuctionsSystem.AccountService.Api.Controllers
             );
 
             var handlerResponse = await _mediator.Send(command, cancellationToken);
-            return StatusCode(201, new RegisterAccountResponseDto(handlerResponse.Id,
+            return StatusCode(StatusCodes.Status201Created, new RegisterAccountResponseDto(handlerResponse.Id,
                 handlerResponse.Email,
                 handlerResponse.PhoneNumber,
                 "Account created successfully"));
@@ -68,11 +68,6 @@ namespace AuctionsSystem.AccountService.Api.Controllers
 
             var query = new GetAccountQuery(userId);
             var handlerResponse = await _mediator.Send(query, cancellationToken);
-
-            if (handlerResponse == null)
-            {
-                return NotFound(new { Message = "Account not found." });
-            }
 
             return Ok(handlerResponse);
         }

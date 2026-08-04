@@ -1,5 +1,6 @@
 ﻿using AuctionsSystem.AccountService.Application.Abstractions.Persistence;
 using AuctionsSystem.AccountService.Application.DTOs;
+using AuctionsSystem.AccountService.Application.Exceptions;
 using AuctionsSystem.AccountService.Domain.Entities;
 using MediatR;
 using System;
@@ -23,7 +24,7 @@ namespace AuctionsSystem.AccountService.Application.Features.GetProfile
 
             if (account == null)
             {
-                throw new Exception();
+                throw new AccountNotFoundException();
             }
 
             return new GetAccountQueryResponseDto(account.Id,
