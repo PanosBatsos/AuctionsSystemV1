@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using AuctionsSystem.AccountService.Application.Abstractions.Logging;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Text;
 namespace AuctionsSystem.AccountService.Application.Behaviors
 {
     public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-        where TRequest : notnull
+        where TRequest : ILoggableRequest
     {
         private readonly ILogger<LoggingBehavior<TRequest, TResponse>> _logger;
 

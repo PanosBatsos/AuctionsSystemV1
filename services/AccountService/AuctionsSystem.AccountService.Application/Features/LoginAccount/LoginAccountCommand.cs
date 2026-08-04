@@ -1,4 +1,5 @@
-﻿using AuctionsSystem.AccountService.Application.DTOs;
+﻿using AuctionsSystem.AccountService.Application.Abstractions.Logging;
+using AuctionsSystem.AccountService.Application.DTOs;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -10,5 +11,5 @@ namespace AuctionsSystem.AccountService.Application.Features.LoginAccount
         string Email,
         string Password,
         string IpAddress
-        ) : IRequest<AuthenticationResponseDto>;
+        ) : IRequest<AuthenticationResponseDto> , ILoggableRequest;
 }
