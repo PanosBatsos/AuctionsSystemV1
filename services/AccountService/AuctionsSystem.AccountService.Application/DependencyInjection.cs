@@ -16,7 +16,11 @@ namespace AuctionsSystem.AccountService.Application
             services.AddMediatR(cfg =>
             {
                 cfg.RegisterServicesFromAssembly(assembly);
+
+                cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
+
                 cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+                
             });
 
 
