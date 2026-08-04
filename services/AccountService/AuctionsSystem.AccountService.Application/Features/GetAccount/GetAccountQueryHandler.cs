@@ -1,12 +1,13 @@
 ﻿using AuctionsSystem.AccountService.Application.Abstractions.Persistence;
 using AuctionsSystem.AccountService.Application.DTOs;
+using AuctionsSystem.AccountService.Application.Exceptions;
 using AuctionsSystem.AccountService.Domain.Entities;
 using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AuctionsSystem.AccountService.Application.Features.GetProfile
+namespace AuctionsSystem.AccountService.Application.Features.GetAccount
 {
     public class GetAccountQueryHandler : IRequestHandler<GetAccountQuery, GetAccountQueryResponseDto>
     {
@@ -23,7 +24,7 @@ namespace AuctionsSystem.AccountService.Application.Features.GetProfile
 
             if (account == null)
             {
-                throw new Exception();
+                throw new AccountNotFoundException();
             }
 
             return new GetAccountQueryResponseDto(account.Id,

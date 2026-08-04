@@ -3,6 +3,7 @@ using AuctionsSystem.AccountService.Application;
 using AuctionsSystem.AccountService.Infrastructure;
 using AuctionsSystem.AccountService.Infrastructure.Configuration;
 using DotNetEnv;
+using Microsoft.OpenApi;
 
 var envPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", ".env"));
 Env.Load(envPath);
@@ -16,7 +17,25 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Paste Access Token"
+    });
+
+    var securityRequirement = new OpenApiSecurityRequirement();
+    securityRequirement.Add(new OpenApiSecuritySchemeReference("Bearer"), new List<string>());
+
+    options.AddSecurityRequirement(_ => securityRequirement);
+});
+
 
 
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
