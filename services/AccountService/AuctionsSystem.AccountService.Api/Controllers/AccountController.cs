@@ -3,7 +3,6 @@ using AuctionsSystem.AccountService.Api.DTOs.RegisterAccount;
 using AuctionsSystem.AccountService.Application.Features.LoginAccount;
 using AuctionsSystem.AccountService.Application.Features.RegisterAccount;
 using MediatR;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuctionsSystem.AccountService.Api.Controllers

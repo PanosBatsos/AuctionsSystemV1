@@ -36,9 +36,18 @@ namespace AuctionsSystem.AccountService.Infrastructure.Persistence.Repositories
             return await _db.Accounts.Where(u => u.Email == email).SingleOrDefaultAsync(cancellationToken);
         }
 
+        
+
         public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             await _db.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<Account?> GetByIdAsync(Guid Id, CancellationToken cancellationToken = default)
+        {
+            return await _db.Accounts
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == Id, cancellationToken);
         }
     }
 }
