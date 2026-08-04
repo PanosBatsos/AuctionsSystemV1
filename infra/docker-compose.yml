@@ -1,0 +1,12 @@
+services:
+  redis-shared:
+    image: redis:alpine
+    container_name: redis-shared-cache
+    ports:
+      - "6379:6379"
+    networks:
+      - microservices_net
+
+networks:
+  microservices_net:
+    external: true
