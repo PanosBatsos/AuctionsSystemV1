@@ -2,12 +2,10 @@
 using AuctionsSystem.AccountService.Application.Abstractions.Persistence;
 using AuctionsSystem.AccountService.Application.Abstractions.Security;
 using AuctionsSystem.AccountService.Application.DTOs;
+using AuctionsSystem.AccountService.Application.Events.Login;
 using AuctionsSystem.AccountService.Application.Exceptions;
 using AuctionsSystem.AccountService.Domain.Entities;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace AuctionsSystem.AccountService.Application.Features.LoginAccount
 {
@@ -16,12 +14,14 @@ namespace AuctionsSystem.AccountService.Application.Features.LoginAccount
         private readonly ITokenProvider _tokenProvider;
         private readonly IAccountRepository _accountRepository;
         private readonly IPasswordHasher _passwordHasher;
+        private readonly IPublisher _publisher;
 
-        public LoginAccountCommandHandler(ITokenProvider tokenProvider, IAccountRepository accountRepository, IPasswordHasher passwordHasher)
+        public LoginAccountCommandHandler(ITokenProvider tokenProvider, IAccountRepository accountRepository, IPasswordHasher passwordHasher, IPublisher publisher)
         {
             _tokenProvider = tokenProvider;
             _accountRepository = accountRepository;
             _passwordHasher = passwordHasher;
+            _publisher = publisher;
         }
 
         public async Task<AuthenticationResponseDto> Handle(LoginAccountCommand request, CancellationToken cancellationToken)
@@ -37,6 +37,8 @@ namespace AuctionsSystem.AccountService.Application.Features.LoginAccount
             var token = _tokenProvider.GenerateToken(account.Id, account.UserName, account.Role);
  
             await _accountRepository.SaveChangesAsync();
+
+            await _publisher.Publish(new UserLoggedInEvent(account), cancellationToken);
 
             return new AuthenticationResponseDto(account.UserName, account.Email, token);
         }
