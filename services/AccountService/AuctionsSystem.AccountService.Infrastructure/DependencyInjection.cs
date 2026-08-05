@@ -53,6 +53,12 @@ namespace AuctionsSystem.AccountService.Infrastructure
                 };
             });
 
+
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = configuration.GetConnectionString("Redis");
+            });
+
             services.AddAuthorization();
             return services;
         }
