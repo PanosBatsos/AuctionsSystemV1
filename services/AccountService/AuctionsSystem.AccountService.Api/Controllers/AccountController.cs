@@ -2,6 +2,7 @@
 using AuctionsSystem.AccountService.Api.DTOs.RegisterAccount;
 using AuctionsSystem.AccountService.Application.Features.GetAccount;
 using AuctionsSystem.AccountService.Application.Features.LoginAccount;
+using AuctionsSystem.AccountService.Application.Features.LogoutAccount;
 using AuctionsSystem.AccountService.Application.Features.RegisterAccount;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -70,6 +71,22 @@ namespace AuctionsSystem.AccountService.Api.Controllers
             var handlerResponse = await _mediator.Send(query, cancellationToken);
 
             return Ok(handlerResponse);
+        }
+
+        [HttpPost("logout")]
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub) ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            await _mediator.Send(new LogoutAccountCommand(userId));
+
+            return Ok();
         }
     }
 }
