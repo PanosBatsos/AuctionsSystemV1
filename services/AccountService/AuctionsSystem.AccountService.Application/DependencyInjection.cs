@@ -20,7 +20,9 @@ namespace AuctionsSystem.AccountService.Application
                 cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
 
                 cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
-                
+
+                cfg.AddOpenBehavior(typeof(CachingBehavior<,>));
+
             });
 
 
