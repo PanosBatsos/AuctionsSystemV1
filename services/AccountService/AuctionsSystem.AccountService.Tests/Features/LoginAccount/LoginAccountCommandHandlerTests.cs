@@ -6,6 +6,7 @@ using AuctionsSystem.AccountService.Application.Features.LoginAccount;
 using AuctionsSystem.AccountService.Domain.Entities;
 using AuctionsSystem.AccountService.Domain.Enums;
 using FluentAssertions;
+using MediatR;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -18,11 +19,14 @@ namespace AuctionsSystem.AccountService.Tests.Features.LoginAccount
         private readonly Mock<IAccountRepository> _repositoryMock = new();
         private readonly Mock<IPasswordHasher> _hasherMock = new();
         private readonly Mock<ITokenProvider> _tokenProviderMock = new();
+        private readonly Mock<IPublisher> _publisherMock = new();
+
 
         private LoginAccountCommandHandler CreateSut() => new(
             _tokenProviderMock.Object,
             _repositoryMock.Object,
-            _hasherMock.Object
+            _hasherMock.Object,
+            _publisherMock.Object
         );
 
         private Account CreateValidAccount()
