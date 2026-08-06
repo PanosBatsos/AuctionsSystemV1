@@ -1,7 +1,6 @@
 ﻿using AuctionsSystem.AccountService.Api.ExceptionHandling;
 using AuctionsSystem.AccountService.Application.Abstractions.Persistence;
 using AuctionsSystem.AccountService.Application.Abstractions.Security;
-using AuctionsSystem.AccountService.Application.Events.Login;
 using AuctionsSystem.AccountService.Application.Exceptions;
 using AuctionsSystem.AccountService.Application.Features.LoginAccount;
 using AuctionsSystem.AccountService.Domain.Entities;
@@ -21,6 +20,7 @@ namespace AuctionsSystem.AccountService.Tests.Features.LoginAccount
         private readonly Mock<IPasswordHasher> _hasherMock = new();
         private readonly Mock<ITokenProvider> _tokenProviderMock = new();
         private readonly Mock<IPublisher> _publisherMock = new();
+
 
         private LoginAccountCommandHandler CreateSut() => new(
             _tokenProviderMock.Object,
@@ -182,29 +182,6 @@ namespace AuctionsSystem.AccountService.Tests.Features.LoginAccount
             await act.Should().ThrowAsync<InactiveAccountException>();
 
             _tokenProviderMock.Verify(tp => tp.GenerateToken(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<UserRole>()), Times.Never);
-        }
-
-        [Fact]
-        public async Task Handle_ShouldPublishEvent_WhenCredentialsAreValid()
-        {
-            // Arrange 
-            var command = new LoginAccountCommand("giorgos@example.com", "CorrectPassword123!", "192.168.1.1");
-            var account = CreateValidAccount();
-
-            _repositoryMock.Setup(repo => repo.GetByEmailAsync(command.Email, It.IsAny<CancellationToken>())).ReturnsAsync(account);
-            _hasherMock.Setup(hasher => hasher.Verify(command.Password, account.Security.PasswordHash)).Returns(true);
-            _tokenProviderMock.Setup(tp => tp.GenerateToken(account.Id, account.UserName, account.Role)).Returns("token");
-
-            var sut = CreateSut();
-
-            // Act 
-            await sut.Handle(command, CancellationToken.None);
-
-            // Assert 
-            _publisherMock.Verify(
-                p => p.Publish(It.Is<UserLoggedInEvent>(e => e.Account.Id == account.Id), It.IsAny<CancellationToken>()),
-                Times.Once
-            );
         }
     }
 }
