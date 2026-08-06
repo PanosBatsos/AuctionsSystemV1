@@ -78,13 +78,14 @@ namespace AuctionsSystem.AccountService.Api.Controllers
         public async Task<IActionResult> Logout()
         {
             var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub) ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string? tokenIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Jti) ?? null;
 
-            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId) || string.IsNullOrEmpty(tokenIdClaim))
             {
                 return Unauthorized();
             }
 
-            await _mediator.Send(new LogoutAccountCommand(userId));
+            await _mediator.Send(new LogoutAccountCommand(userId, tokenIdClaim));
 
             return Ok();
         }

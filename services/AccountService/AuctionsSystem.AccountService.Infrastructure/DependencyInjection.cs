@@ -4,11 +4,14 @@ using AuctionsSystem.AccountService.Infrastructure.Configuration;
 using AuctionsSystem.AccountService.Infrastructure.Persistence;
 using AuctionsSystem.AccountService.Infrastructure.Persistence.Repositories;
 using AuctionsSystem.AccountService.Infrastructure.Security;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
 
 namespace AuctionsSystem.AccountService.Infrastructure
@@ -50,6 +53,27 @@ namespace AuctionsSystem.AccountService.Infrastructure
                     ValidIssuer = jwtSettings.Issuer,
                     ValidAudience = jwtSettings.Audience,
                     IssuerSigningKey = new RsaSecurityKey(rsa)
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        var cache = context.HttpContext.RequestServices.GetRequiredService<IDistributedCache>();
+
+                        var jti = context.Principal?.FindFirstValue(JwtRegisteredClaimNames.Jti);
+
+                        if (!string.IsNullOrEmpty(jti))
+                        {
+
+                            var isBlacklisted = await cache.GetStringAsync($"blacklist-{jti}");
+
+                            if (!string.IsNullOrEmpty(isBlacklisted))
+                            {
+                                context.Fail("This token has been revoked.");
+                            }
+                        }
+                    }
                 };
             });
 

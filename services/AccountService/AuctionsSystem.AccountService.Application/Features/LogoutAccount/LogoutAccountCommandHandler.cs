@@ -1,4 +1,5 @@
 ﻿using AuctionsSystem.AccountService.Application.Events.Logout;
+using AuctionsSystem.AccountService.Application.Events.RevokeToken;
 using MediatR;
 
 
@@ -16,6 +17,8 @@ namespace AuctionsSystem.AccountService.Application.Features.LogoutAccount
         public async Task Handle(LogoutAccountCommand request, CancellationToken cancellationToken)
         {
             await _publisher.Publish(new UserLoggedOutEvent(request.Id), cancellationToken);
+
+            await _publisher.Publish(new RevokeTokenEvent(request.TokenId), cancellationToken);
         }
     }
 }
