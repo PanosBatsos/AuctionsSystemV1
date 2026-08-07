@@ -13,6 +13,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using Polly;
+using Polly.Retry;
 
 namespace AuctionsSystem.AccountService.Infrastructure
 {
@@ -81,6 +83,18 @@ namespace AuctionsSystem.AccountService.Infrastructure
             services.AddStackExchangeRedisCache(options =>
             {
                 options.Configuration = configuration.GetConnectionString("Redis");
+            });
+
+
+            services.AddResiliencePipeline("redis-retry", pipelineBuilder =>
+            {
+                pipelineBuilder.AddRetry(new RetryStrategyOptions
+                {
+                    MaxRetryAttempts = 3,
+                    Delay = TimeSpan.FromMilliseconds(200),
+                    BackoffType = DelayBackoffType.Exponential,
+                    ShouldHandle = new PredicateBuilder().Handle<Exception>()
+                });
             });
 
             services.AddAuthorization();

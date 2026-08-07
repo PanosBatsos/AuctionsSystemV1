@@ -1,5 +1,6 @@
 ﻿using AuctionsSystem.AccountService.Application.Events.Logout;
 using AuctionsSystem.AccountService.Application.Events.RevokeToken;
+using AuctionsSystem.AccountService.Application.Exceptions;
 using AuctionsSystem.AccountService.Application.Features.LogoutAccount;
 using MediatR;
 using Moq;
@@ -37,6 +38,54 @@ namespace AuctionsSystem.AccountService.Tests.Features.LogoutAccount
 
             _publisherMock.Verify(p => p.Publish(
                 It.Is<RevokeTokenEvent>(e => e.TokenId == command.TokenId),
+                It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+
+        [Fact]
+        public async Task Handle_WhenTokenRevocationFails_ShouldThrowTokenRevocationException()
+        {
+            // Arrange
+            var sut = CreateSut();
+            var command = new LogoutAccountCommand(Guid.NewGuid(), Guid.NewGuid().ToString());
+
+            _publisherMock
+                .Setup(p => p.Publish(It.IsAny<RevokeTokenEvent>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception("Redis is down"));
+
+            // Act
+            await Assert.ThrowsAsync<TokenRevocationException>(() =>
+                sut.Handle(command, CancellationToken.None));
+
+            // Assert
+            _publisherMock.Verify(p => p.Publish(
+                It.IsAny<UserLoggedOutEvent>(),
+                It.IsAny<CancellationToken>()),
+                Times.Never);
+        }
+
+        [Fact]
+        public async Task Handle_WhenCacheInvalidationFails_ShouldNotThrowException()
+        {
+            // Arrange
+            var sut = CreateSut();
+            var command = new LogoutAccountCommand(Guid.NewGuid(), Guid.NewGuid().ToString());
+
+
+            _publisherMock
+                .Setup(p => p.Publish(It.IsAny<UserLoggedOutEvent>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception("Cache is down"));
+
+            // Act
+            var exception = await Record.ExceptionAsync(() =>
+                sut.Handle(command, CancellationToken.None));
+
+            // Assert
+            Assert.Null(exception);
+
+            _publisherMock.Verify(p => p.Publish(
+                It.IsAny<RevokeTokenEvent>(),
                 It.IsAny<CancellationToken>()),
                 Times.Once);
         }

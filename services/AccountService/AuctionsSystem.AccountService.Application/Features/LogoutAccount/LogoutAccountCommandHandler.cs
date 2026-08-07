@@ -1,6 +1,8 @@
 ﻿using AuctionsSystem.AccountService.Application.Events.Logout;
 using AuctionsSystem.AccountService.Application.Events.RevokeToken;
+using AuctionsSystem.AccountService.Application.Exceptions;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 
 namespace AuctionsSystem.AccountService.Application.Features.LogoutAccount
@@ -16,9 +18,20 @@ namespace AuctionsSystem.AccountService.Application.Features.LogoutAccount
 
         public async Task Handle(LogoutAccountCommand request, CancellationToken cancellationToken)
         {
-            await _publisher.Publish(new UserLoggedOutEvent(request.Id), cancellationToken);
+            try
+            {
+                await _publisher.Publish(new RevokeTokenEvent(request.TokenId), cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                throw new TokenRevocationException("There was an error in token revokation", ex);
+            }
 
-            await _publisher.Publish(new RevokeTokenEvent(request.TokenId), cancellationToken);
+            try
+            {
+                await _publisher.Publish(new UserLoggedOutEvent(request.Id), cancellationToken);
+            }
+            catch (Exception) { }
         }
     }
 }
