@@ -10,12 +10,10 @@ namespace AuctionsSystem.AccountService.Application.Features.UpdateAccount.Updat
     public class UpdateUsernameCommandHandler : IRequestHandler<UpdateUsernameCommand>
     {
         private readonly IAccountRepository _accountRepository;
-        private readonly IPublisher _publisher;
 
-        public UpdateUsernameCommandHandler(IAccountRepository accountRepository, IPublisher publisher)
+        public UpdateUsernameCommandHandler(IAccountRepository accountRepository)
         {
             _accountRepository = accountRepository;
-            _publisher = publisher;
         }
 
         public async Task Handle(UpdateUsernameCommand request, CancellationToken cancellationToken)
@@ -34,7 +32,7 @@ namespace AuctionsSystem.AccountService.Application.Features.UpdateAccount.Updat
 
             account.ChangeUsername(request.NewUsername);
 
-            await _accountRepository.UpdateAsync(account);
+            await _accountRepository.UpdateAsync(account, cancellationToken);
         }
     }
 }
