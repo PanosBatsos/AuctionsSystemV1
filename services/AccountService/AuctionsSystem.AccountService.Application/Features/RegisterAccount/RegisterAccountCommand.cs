@@ -1,4 +1,5 @@
-﻿using AuctionsSystem.AccountService.Application.DTOs;
+﻿using AuctionsSystem.AccountService.Application.Abstractions.Logging;
+using AuctionsSystem.AccountService.Application.DTOs;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -14,5 +15,5 @@ namespace AuctionsSystem.AccountService.Application.Features.RegisterAccount
         string Password,
         string IdNumber,
         string PhoneNumber
-        ) : IRequest<RegisterAccountCommandResponseDto>;
+        ) : IRequest<RegisterAccountCommandResponseDto>, ILoggableRequest;
 }

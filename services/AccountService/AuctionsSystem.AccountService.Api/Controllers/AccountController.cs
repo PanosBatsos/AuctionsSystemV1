@@ -1,9 +1,11 @@
 ﻿using AuctionsSystem.AccountService.Api.DTOs.LoginAccount;
 using AuctionsSystem.AccountService.Api.DTOs.RegisterAccount;
+using AuctionsSystem.AccountService.Api.DTOs.UpdateAccount.UpdateUsername;
 using AuctionsSystem.AccountService.Application.Features.GetAccount;
 using AuctionsSystem.AccountService.Application.Features.LoginAccount;
 using AuctionsSystem.AccountService.Application.Features.LogoutAccount;
 using AuctionsSystem.AccountService.Application.Features.RegisterAccount;
+using AuctionsSystem.AccountService.Application.Features.UpdateAccount.UpdateUsername;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -56,7 +58,7 @@ namespace AuctionsSystem.AccountService.Api.Controllers
                 "User logged in successfully"));
         }
 
-        [HttpGet("account")]
+        [HttpGet("profile")]
         [Authorize]
         public async Task<IActionResult> GetAccount(CancellationToken cancellationToken)
         {
@@ -88,6 +90,22 @@ namespace AuctionsSystem.AccountService.Api.Controllers
             await _mediator.Send(new LogoutAccountCommand(userId, tokenIdClaim));
 
             return Ok();
+        }
+
+        [HttpPatch("profile/username")]
+        [Authorize]
+        public async Task<IActionResult> UpdateUsername([FromBody] UpdateUsernameRequestDto request, CancellationToken cancellationToken)
+        {
+            var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub) ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            await _mediator.Send(new UpdateUsernameCommand(userId, request.NewUsername), cancellationToken);
+
+            return Ok("Username changed successfully");
         }
     }
 }

@@ -55,7 +55,7 @@ namespace AuctionsSystem.AccountService.Application.Features.RegisterAccount
 
             if (account.UserName == request.Username)
             {
-                throw new PropertyAlreadyInUseException("Usename", "Username already exists");
+                throw new PropertyAlreadyInUseException("Username", "Username already exists");
             }
 
             if(account.Email == request.Email)
