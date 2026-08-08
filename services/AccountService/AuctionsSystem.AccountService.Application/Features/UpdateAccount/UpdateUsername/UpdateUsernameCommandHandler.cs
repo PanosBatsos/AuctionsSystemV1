@@ -18,16 +18,21 @@ namespace AuctionsSystem.AccountService.Application.Features.UpdateAccount.Updat
 
         public async Task Handle(UpdateUsernameCommand request, CancellationToken cancellationToken)
         {
-            var isTaken = await _accountRepository.IsUsernameTakenAsync(request.NewUsername, cancellationToken);
-            if (isTaken)
-            {
-                throw new PropertyAlreadyInUseException("Username", "Username already exists");
-            }
-
             var account = await _accountRepository.GetByIdAsync(request.Id, cancellationToken);
             if (account == null)
             {
                 throw new AccountNotFoundException();
+            }
+
+            if (account.UserName.Equals(request.NewUsername)) 
+            {
+                return;
+            }
+
+            var isTaken = await _accountRepository.IsUsernameTakenAsync(request.NewUsername, cancellationToken);
+            if (isTaken)
+            {
+                throw new PropertyAlreadyInUseException("Username", "Username already exists");
             }
 
             account.ChangeUsername(request.NewUsername);
