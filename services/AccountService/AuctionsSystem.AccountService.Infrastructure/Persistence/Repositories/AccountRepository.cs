@@ -49,5 +49,19 @@ namespace AuctionsSystem.AccountService.Infrastructure.Persistence.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Id == Id, cancellationToken);
         }
+
+        public async Task<bool> IsUsernameTakenAsync(string username, CancellationToken cancellationToken = default)
+        {
+            return await _db.Accounts
+                .AsNoTracking()
+                .AnyAsync(u => u.UserName.Equals(username), cancellationToken);
+        }
+
+        public async Task UpdateAsync(Account account, CancellationToken cancellationToken = default)
+        {
+            _db.Accounts.Update(account);
+
+            await _db.SaveChangesAsync(cancellationToken);
+        }
     }
 }

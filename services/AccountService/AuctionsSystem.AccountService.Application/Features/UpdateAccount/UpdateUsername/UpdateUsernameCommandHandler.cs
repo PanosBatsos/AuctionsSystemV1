@@ -1,0 +1,40 @@
+﻿using AuctionsSystem.AccountService.Application.Abstractions.Persistence;
+using AuctionsSystem.AccountService.Application.Exceptions;
+using MediatR;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace AuctionsSystem.AccountService.Application.Features.UpdateAccount.UpdateUsername
+{
+    public class UpdateUsernameCommandHandler : IRequestHandler<UpdateUsernameCommand>
+    {
+        private readonly IAccountRepository _accountRepository;
+        private readonly IPublisher _publisher;
+
+        public UpdateUsernameCommandHandler(IAccountRepository accountRepository, IPublisher publisher)
+        {
+            _accountRepository = accountRepository;
+            _publisher = publisher;
+        }
+
+        public async Task Handle(UpdateUsernameCommand request, CancellationToken cancellationToken)
+        {
+            var isTaken = await _accountRepository.IsUsernameTakenAsync(request.NewUsername, cancellationToken);
+            if (isTaken)
+            {
+                throw new PropertyAlreadyInUseException("Username", "Username already exists");
+            }
+
+            var account = await _accountRepository.GetByIdAsync(request.Id, cancellationToken);
+            if (account == null)
+            {
+                throw new AccountNotFoundException();
+            }
+
+            account.ChangeUsername(request.NewUsername);
+
+            await _accountRepository.UpdateAsync(account);
+        }
+    }
+}

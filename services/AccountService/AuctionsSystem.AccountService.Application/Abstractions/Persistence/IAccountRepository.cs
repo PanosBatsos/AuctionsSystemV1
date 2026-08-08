@@ -14,5 +14,9 @@ namespace AuctionsSystem.AccountService.Application.Abstractions.Persistence
 
         Task<Account?> GetByIdAsync(Guid Id, CancellationToken cancellationToken = default);
         Task SaveChangesAsync(CancellationToken cancellationToken = default);
+
+        Task<bool> IsUsernameTakenAsync(string username, CancellationToken cancellationToken = default);
+
+        Task UpdateAsync(Account account, CancellationToken cancellationToken = default);
     }
 }
